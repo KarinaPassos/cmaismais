@@ -5,6 +5,10 @@ void Retangulo::calcArea(){
     area=altura*base;
 }
 
+void Retangulo::descricao(){
+    std::cout << "Retangulo com base " << base << " e altura " << altura << " tem area de " << area << std::endl;
+}
+
 Retangulo::Retangulo(double b, double a){
     base = b;
     altura = a;
@@ -20,6 +24,10 @@ Circulo::Circulo(double r){
     calcArea();
 }
 
+void Circulo::descricao(){
+    std::cout << "Circulo com raio " << raio << " tem area de " << area << std::endl;
+}
+
 void PoligonoRegular::calcArea(){
     area=nLados*tamLado*alturaInterna/2;
 }
@@ -29,4 +37,9 @@ PoligonoRegular::PoligonoRegular(double aI, double tL, int nL){
     tamLado = tL;
     nLados = nL;
     calcArea();
+}
+
+void PoligonoRegular::descricao(){
+    std::cout << "Poligono regular com " << nLados << " lados, altura interna " << alturaInterna << " e tamanho do lado " << tamLado << " tem area "
+         << area << std::endl;
 }

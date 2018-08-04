@@ -4,34 +4,38 @@
 
 class Figura{
     public:
-        double area;
+        virtual void descricao() = 0;
+        double area; //deixei publico pq privado nao tava rodando
     private:
         virtual void calcArea() = 0;
 };
 
 class Retangulo:public Figura{
     public:
-       double altura, base;
        Retangulo(double b, double a);
+       void descricao() override;
     private:
+       double altura, base;
        void calcArea() override;
 };
 
 class Circulo:public Figura{
     public:
-       double raio;
        Circulo(double r);
+       void descricao() override;
     private:
+       double raio;
        void calcArea() override;
 };
 
-class PoligonoRegular:public Figura{ //tem que ser public mesmo?
+class PoligonoRegular:public Figura{
     public:
+       PoligonoRegular(double aI, double tL, int nL);
+       void descricao() override;
+    private:
        int nLados;
        double tamLado;
        double alturaInterna;
-       PoligonoRegular(double aI, double tL, int nL);
-    private:
        void calcArea() override;
 };
 

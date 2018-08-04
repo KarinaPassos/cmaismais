@@ -44,12 +44,9 @@ void removerItem (LinkedList<T> *list, T value){
          return;
     }
     else if (list->firstNode->next==nullptr){
-         if (list->firstNode->value==value){
+         if (list->firstNode->value==value)
             delete list->firstNode;
-            return;
-         }
-         else
-            return;
+         return;
     }
 
     Node<T> *aux1;
@@ -75,7 +72,7 @@ void removerItem (LinkedList<T> *list, T value){
 }
 
 template <typename T>
-int printarLista (LinkedList<T> *list){
+void printarLista (LinkedList<T> *list){
     Node<T> *aux = new Node<T>;
     aux=list->firstNode;
     while(aux!=nullptr){
