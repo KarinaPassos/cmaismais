@@ -40,6 +40,6 @@ PoligonoRegular::PoligonoRegular(double aI, double tL, int nL){
 }
 
 void PoligonoRegular::descricao(){
-    std::cout << "Poligono regular com " << nLados << " lados, altura interna " << alturaInterna << " e tamanho do lado " << tamLado << " tem area "
+    std::cout << "Poligono regular com " << nLados << " lados, de altura interna " << alturaInterna << " e tamanho do lado " << tamLado << " tem area "
          << area << std::endl;
 }

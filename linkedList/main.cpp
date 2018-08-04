@@ -66,7 +66,6 @@ void removerItem (LinkedList<T> *list, T value){
          if (aux1==nullptr)
              return;
     }
-    //se aux2 é o cara que eu quero remover, então:
     aux1->next=aux2->next;
     delete aux2;
 }
@@ -76,7 +75,6 @@ void printarLista (LinkedList<T> *list){
     Node<T> *aux = new Node<T>;
     aux=list->firstNode;
     while(aux!=nullptr){
-        //printf("%d ",aux->value);
         cout << aux->value << " ";
         aux=aux->next;
     }

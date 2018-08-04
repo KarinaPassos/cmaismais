@@ -5,7 +5,7 @@
 int main()
 {
 
-    Figura *r = new Retangulo(20,7);
+    Figura *r = new Retangulo(21,7);
     r->descricao();
     Figura *c = new Circulo(2);
     c->descricao();

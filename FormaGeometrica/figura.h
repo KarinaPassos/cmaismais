@@ -5,7 +5,7 @@
 class Figura{
     public:
         virtual void descricao() = 0;
-        double area; //deixei publico pq privado nao tava rodando
+        double area; //deixei publico pq privado nao tava rodando :(
     private:
         virtual void calcArea() = 0;
 };
