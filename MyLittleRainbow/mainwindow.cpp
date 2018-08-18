@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <iostream>
 #include <vector>
 
@@ -29,8 +28,8 @@ void MainWindow::mousePressEvent(QMouseEvent *e){
 }
 
 void MainWindow::suavizar(){
-    double a1,a2,b1,b2,x1,x2,y1,y2;
-    QPointF p1,p2;
+    double a,b,x,y;
+    QPointF p;
     int i = 0;
 
     if (pontos.size()>2){
@@ -43,22 +42,22 @@ void MainWindow::suavizar(){
         aux.push_back(pontos.front()); //já coloquei o primeiro ponto no vetor novo, já que ele não vai ser descartado
 
         for (i=1; i<pontos.size()-1; i++){
-            a1 = (pontos[i].y()-pontos[i-1].y())/(pontos[i].x() - pontos[i-1].x());
-            b1 = pontos[i-1].y() - a1*pontos[i-1].x();
-            x1 = pontos[i-1].x() + 3*(pontos[i].x()-pontos[i-1].x())/4;
-            y1 = a1 * x1 + b1;
-            p1.setX(x1);
-            p1.setY(y1);
+            a = (pontos[i].y()-pontos[i-1].y())/(pontos[i].x() - pontos[i-1].x());
+            b = pontos[i-1].y() - a*pontos[i-1].x();
+            x = pontos[i-1].x() + 3*(pontos[i].x()-pontos[i-1].x())/4;
+            y = a * x + b;
+            p.setX(x);
+            p.setY(y);
+            aux.push_back(p);
 
-            a2 = (pontos[i+1].y()-pontos[i].y())/(pontos[i+1].x() - pontos[i].x());
-            b2 = pontos[i].y() - a2*pontos[i].x();
-            x2 = pontos[i].x() + (pontos[i+1].x()-pontos[i].x())/4;
-            y2 = a2 * x2 + b2;
-            p2.setX(x2);
-            p2.setY(y2);
+            a = (pontos[i+1].y()-pontos[i].y())/(pontos[i+1].x() - pontos[i].x());
+            b = pontos[i].y() - a*pontos[i].x();
+            x = pontos[i].x() + (pontos[i+1].x()-pontos[i].x())/4;
+            y = a * x + b;
+            p.setX(x);
+            p.setY(y);
 
-            aux.push_back(p1);
-            aux.push_back(p2);
+            aux.push_back(p);
         }
         aux.push_back(pontos.back()); //botei o ultimo ponto pq ele nao vai ser descartado
         pontos = aux;

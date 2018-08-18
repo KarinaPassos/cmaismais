@@ -20,9 +20,13 @@ public:
     void paintGL() override;
     void initializeGL() override;
     void resizeGL(int width, int height);
-    void suavizar();
+    void location(QPointF pontoDeTeste);
 private:
-    std::vector<QPointF> pontos;
+    std::vector<QPointF> pontosDoPoligono;
+    QPointF pontoDeTeste;
+    std::vector<QPointF> pontosDentro;
+    std::vector<QPointF> pontosFora;
 };
 
-#endif // MAINWINDOW_H     
+#endif // MAINWINDOW_H
+
