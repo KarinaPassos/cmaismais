@@ -14,8 +14,7 @@ class MainWindow : public QOpenGLWidget, public QOpenGLFunctions_2_0
 {
     Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
     void mousePressEvent(QMouseEvent *e) override;
     void paintGL() override;
     void initializeGL() override;
@@ -23,7 +22,6 @@ public:
     void location(QPointF pontoDeTeste);
 private:
     std::vector<QPointF> pontosDoPoligono;
-    QPointF pontoDeTeste;
     std::vector<QPointF> pontosDentro;
     std::vector<QPointF> pontosFora;
 };
