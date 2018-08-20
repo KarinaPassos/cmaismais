@@ -119,10 +119,3 @@ void MainWindow::paintGL(){
 
     glEnd();
 }
-
-
-MainWindow::~MainWindow()
-{
-
-}
-
