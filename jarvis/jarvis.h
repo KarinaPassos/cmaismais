@@ -1,30 +1,25 @@
-#ifndef JARVIS_H
-#define JARVIS_H
+#pragma once
+
 #include <QMouseEvent>
-#include <unordered_set>
 #include <QPoint>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_2_0>
 #include <qmath.h>
 
-namespace Ui {
-class jarvis;
-}
-
-class jarvis : public QOpenGLWidget, public QOpenGLFunctions_2_0
+class Jarvis : public QOpenGLWidget, public QOpenGLFunctions_2_0
 {
     Q_OBJECT
 public:
-    explicit jarvis(QWidget *parent = 0);
+    explicit Jarvis(QWidget *parent = nullptr);
+    ~Jarvis() override = default;
+
     void mousePressEvent(QMouseEvent *e) override;
     void paintGL() override;
     void initializeGL() override;
-    void resizeGL(int width, int height);
+    void resizeGL(int width, int height) override;
     void convexHull();
     double fakeAngle(QPointF point1, QPointF point2,  QPointF point3);
 private:
     std::vector<QPointF> pontos;
     std::vector<QPointF> linhas;
 };
-
-#endif // projeto1_H

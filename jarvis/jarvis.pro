@@ -29,6 +29,3 @@ SOURCES += \
 
 HEADERS += \
         jarvis.h
-
-FORMS += \
-        jarvis.ui
