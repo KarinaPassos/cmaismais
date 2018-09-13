@@ -19,7 +19,7 @@ void jarvis::resizeGL(int width, int height){
 
 void jarvis::mousePressEvent(QMouseEvent *e){
     if(e->button() == Qt::LeftButton){
-        pontos.insert(e->pos());
+        pontos.push_back(e->pos());
         update();
     }
     else if (e->button() == Qt::RightButton) {
@@ -36,57 +36,60 @@ void jarvis::initializeGL() {
 
 void jarvis::convexHull(){
     double maxAngle = 0.0;
-    QPointF first,p,p1;
-    p.setX(*pontos.begin().x());
-    p.setY(*pontos.begin().y());
+    QPointF p1,p2,p3;
+
+    p1.setX(0);
+    p1.setY(1);
+
+    p2.setX(pontos.front().x());
+    p2.setY(pontos.front().y());
 
     for (auto ponto: pontos){
-        if (ponto.x() < p.x()){
-            p.setX(ponto.x());
-            p.setY(ponto.y());
-        }
+       if (ponto.x() < p2.x()){
+             p2.setX(ponto.x());
+             p2.setY(ponto.y());
+       }
     }
 
-    linhas.insert(p);
-    first.setX(p.x());
-    first.setY(p.y());
+    linhas.push_back(p2);
+    double angle;
 
-    int b = 0;
+    bool b;
 
-    while (b == 0){
+    do {
         for (auto ponto: pontos){
-            if (fakeAngle(p,ponto) > maxAngle){
-                maxAngle = fakeAngle(p,ponto);
-                p1 = ponto;
-            } else if (fakeAngle(p,ponto) == maxAngle){
-                if (((ponto.x()-p.x())*(ponto.x()-p.x())+(ponto.y()-p.y())*(ponto.y()-p.y()))>((p1.x()-p.x())*(p1.x()-p.x())+(p1.y()-p.y())*(p1.y()-p.y())))
-                    //calcula a distancia, pra no caso de terem dois pontos com o mesmo angulo, catar o com a maior distancia
-                    p1 = ponto;
+            b = false;
+            for (auto linha: linhas){
+                //std::cout<<"("<<linha.x()<<","<<linha.y()<<")"<<std::endl; //loop infinito, ta adicionando o msm ponto trilhoes de vezes
+                if (abs(ponto.x() - linha.x())>0.000000001 && abs(ponto.y() - linha.y())>0.000000001)
+                    b = true;
+            }
+
+            if (b == true){
+                continue;
+            }
+
+            angle = fakeAngle(p1,p2,ponto);
+            if (angle > maxAngle){
+                maxAngle = angle;
+                p3 = ponto;
             }
         }
-        linhas.insert(p1);
-        std::cout << b << std::endl;
 
-        p = p1;
-        if (p.x() == first.x() && p.y() == first.y())
-            b = 1;
-    }
+        linhas.push_back(p3);
 
+        p1 = p2;
+        p2 = p3;
 
-    for (auto linha: linhas){
-        std::cout << "(" << linha.x() << "," << linha.y() << ")" << std::endl;
-    }
-    std::cout << linhas.size() << std::endl;
+    } while (abs(linhas.front().x() - linhas.back().x())>0.000000001 && abs(linhas.front().y() - linhas.back().y())>0.000000001);
 
 }
 
-double jarvis::fakeAngle(QPointF origin, QPointF point){
+double jarvis::fakeAngle(QPointF point1, QPointF point2, QPointF point3){
+    point3.setX(point3.x()-point2.x());
+    point3.setY(point3.y()-point2.y());
 
-    point.setX(point.x() - origin.x());
-    point.setY(point.y() - origin.y());
-
-    return (1 - (point.x())/sqrt(point.x()*point.x()+point.y()*point.y()));
-
+    return (1 - (point3.x()*point1.x() + point3.y()*point1.y())/((sqrt(pow (point3.x(),2) + pow(point3.y(),2)))*(sqrt(pow (point1.x(),2) + pow(point1.y(),2)))));
 }
 
 void jarvis::paintGL(){
@@ -94,6 +97,7 @@ void jarvis::paintGL(){
 
     glColor3f(0.0,1.0,0.0);
     for (auto ponto: pontos){
+        std::cout<<"("<<ponto.x()<<","<<ponto.y()<<")"<<std::endl;
         glVertex3f(ponto.x(),ponto.y(),0.0);
     }
 
@@ -101,8 +105,9 @@ void jarvis::paintGL(){
 
     glBegin(GL_LINE_STRIP);
 
-    glColor3f(1.0,0.0,0.0);
+    glColor3f(1.0,0.0,0.5);
     for (auto linha: linhas){
+        std::cout<<"("<<linha.x()<<","<<linha.y()<<")"<<std::endl;
         glVertex3f(linha.x(),linha.y(),0.0);
     }
 
