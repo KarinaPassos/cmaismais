@@ -18,8 +18,7 @@ public:
     void initializeGL() override;
     void resizeGL(int width, int height) override;
     void convexHull();
-    double fakeAngle(QPointF point1, QPointF point2,  QPointF point3);
 private:
-    std::vector<QPointF> pontos;
-    std::vector<QPointF> linhas;
+    QVector<QPointF> pontos;
+    QVector<QPointF> linhas;
 };

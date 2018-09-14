@@ -2,6 +2,15 @@
 #include <vector>
 #include <QDebug>
 
+namespace {
+    bool rotacaoAntioraria(QPointF currentPoint, QPointF loopPoint, QPointF testPoint) {
+        return  (loopPoint.y() - currentPoint.y())
+                 * (testPoint.x() - loopPoint.x())
+                - (loopPoint.x() - currentPoint.x())
+                * (testPoint.y() - loopPoint.y()) < 0;
+    }
+}
+
 Jarvis::Jarvis(QWidget *parent) :
     QOpenGLWidget(parent)
 {
@@ -30,7 +39,6 @@ void Jarvis::initializeGL() {
     glPointSize(7);
     glLineWidth(7);
 }
-
 void Jarvis::convexHull(){
     // organiza o vetor, x crescente.
     std::sort(pontos.begin(), pontos.end(),
@@ -86,6 +94,8 @@ void Jarvis::paintGL(){
     for (auto linha: linhas){
         glVertex3d(linha.x(),linha.y(),0.0);
     }
+    if (linhas.size())
+        glVertex3d(linhas.first().x(), linhas.first().y(), 0.0);
 
     glEnd();
 }
