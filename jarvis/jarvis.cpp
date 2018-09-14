@@ -1,11 +1,12 @@
 #include "jarvis.h"
 #include <iostream>
 #include <vector>
+#include <QDebug>
 
 jarvis::jarvis(QWidget *parent) :
     QOpenGLWidget(parent)
 {
-    setWindowTitle("hi");
+    setWindowTitle("Jarvis");
     resize(600,300);
 }
 
@@ -15,17 +16,19 @@ void jarvis::resizeGL(int width, int height){
     glOrtho(0.0, width, height, 0.0, 0.0, 1.0);
 }
 
-
-
 void jarvis::mousePressEvent(QMouseEvent *e){
+    if (e->button() == Qt::LeftButton && e->modifiers() == Qt::KeyboardModifier::ControlModifier) {
+        linhas.clear();
+        pontos.clear();
+    }
     if(e->button() == Qt::LeftButton){
         pontos.push_back(e->pos());
-        update();
     }
     else if (e->button() == Qt::RightButton) {
+        pontos.push_back(e->pos());
         jarvis::convexHull();
-        update();
     }
+    update();
 }
 
 void jarvis::initializeGL() {
@@ -35,61 +38,66 @@ void jarvis::initializeGL() {
 }
 
 void jarvis::convexHull(){
-    double maxAngle = 0.0;
-    QPointF p1,p2,p3;
+    double  maxAngle=-10.0;
+    QPointF p1(0,-1),p2,p3;
 
-    p1.setX(0);
-    p1.setY(1);
+    std::sort(pontos.begin(), pontos.end(),
+              [](QPointF a, QPointF b){ return a.x() <= b.x(); });
 
-    p2.setX(pontos.front().x());
-    p2.setY(pontos.front().y());
-
-    for (auto ponto: pontos){
-       if (ponto.x() < p2.x()){
-             p2.setX(ponto.x());
-             p2.setY(ponto.y());
-       }
+    //qDebug() << "Vetor Organizado";
+    for(const auto& ponto : pontos) {
+        qDebug() << ponto;
     }
+    //qDebug() << "------";
 
-    linhas.push_back(p2);
-    double angle;
-
-    bool b;
+    linhas.clear();
+    p2 = pontos.front();
 
     do {
-        for (auto ponto: pontos){
-            b = false;
-            for (auto linha: linhas){
-                //std::cout<<"("<<linha.x()<<","<<linha.y()<<")"<<std::endl; //loop infinito, ta adicionando o msm ponto trilhoes de vezes
-                if (abs(ponto.x() - linha.x())>0.000000001 && abs(ponto.y() - linha.y())>0.000000001)
-                    b = true;
-            }
-
-            if (b == true){
+       linhas.push_back(p2);
+       if (p2 == linhas.front() && linhas.size()>1)
+           break;
+       for (int i = 0; i < pontos.size(); i++){
+            if (std::find(std::begin(linhas), std::end(linhas), pontos[i]) != std::end(linhas) && linhas.size()<1) {
+                //qDebug() << "Ponto " << pontos[i] << "ja faz parte do hull.";
                 continue;
             }
 
-            angle = fakeAngle(p1,p2,ponto);
+            double angle = fakeAngle(p1,p2,pontos[i]);
             if (angle > maxAngle){
+                p3 = pontos[i];
                 maxAngle = angle;
-                p3 = ponto;
+                //qDebug() << "testando p1, p2, p3"  << p1 << p2 << p3 << "P3 com max angle." << maxAngle;
+            } else if (angle == maxAngle){
+                if (pow(p3.x(),2)+pow(p3.y(),2) < (pow(pontos[i].x(),2)+pow(pontos[i].y(),2))){
+                        p3 = pontos[i];
+                        maxAngle = angle;
+                }
             }
-        }
+       }
 
-        linhas.push_back(p3);
+       p1 = p2;
+       p2 = p3;
 
-        p1 = p2;
-        p2 = p3;
+       maxAngle = -10.0;
 
-    } while (abs(linhas.front().x() - linhas.back().x())>0.000000001 && abs(linhas.front().y() - linhas.back().y())>0.000000001);
-
+    } while (linhas.back() != p3);
 }
 
 double jarvis::fakeAngle(QPointF point1, QPointF point2, QPointF point3){
     point3.setX(point3.x()-point2.x());
     point3.setY(point3.y()-point2.y());
+    point1.setX(point1.x()-point2.x());
+    point1.setY(point1.y()-point2.y());
 
-    return (1 - (point3.x()*point1.x() + point3.y()*point1.y())/((sqrt(pow (point3.x(),2) + pow(point3.y(),2)))*(sqrt(pow (point1.x(),2) + pow(point1.y(),2)))));
+    double angle = acos((point3.x()*point1.x() + point3.y()*point1.y())
+                        /((sqrt(pow (point3.x(),2) + pow(point3.y(),2)))*(sqrt(pow (point1.x(),2) + pow(point1.y(),2)))));
+
+    if (point3.x()*point1.y()-point3.y()*point1.x() > 0){
+        angle = -angle;
+    }
+
+    return angle;
 }
 
 void jarvis::paintGL(){
@@ -97,19 +105,18 @@ void jarvis::paintGL(){
 
     glColor3f(0.0,1.0,0.0);
     for (auto ponto: pontos){
-        std::cout<<"("<<ponto.x()<<","<<ponto.y()<<")"<<std::endl;
-        glVertex3f(ponto.x(),ponto.y(),0.0);
+        glVertex3d(ponto.x(),ponto.y(),0.0);
     }
 
     glEnd();
 
-    glBegin(GL_LINE_STRIP);
-
-    glColor3f(1.0,0.0,0.5);
-    for (auto linha: linhas){
-        std::cout<<"("<<linha.x()<<","<<linha.y()<<")"<<std::endl;
-        glVertex3f(linha.x(),linha.y(),0.0);
+    if (linhas.size() > 0) {
+        glBegin(GL_LINE_STRIP);
+        glColor3d(1.0,0.0,0.5);
+        for (auto linha: linhas){
+            glVertex3d(linha.x(),linha.y(),0.0);
+        }
+        glVertex3d(linhas[0].x(), linhas[0].y(), 0.0);
+        glEnd();
     }
-
-    glEnd();
 }
