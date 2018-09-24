@@ -14,7 +14,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        numeric.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+        delaunay.h \
+        edge.h  \
+        mainwindow.h  \
+        numeric.h  \
+        triangle.h \
+        vector2.h
+
