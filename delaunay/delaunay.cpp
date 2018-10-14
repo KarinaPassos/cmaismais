@@ -202,6 +202,7 @@ void Delaunay::triangulacao(){
       t.e2=e2;
       t.e3=e3;
 
+      //aqui que tá dando caô SOCORRO
       if (std::find(std::begin(jarvis), std::end(jarvis), e1) == std::end(jarvis) ) {
           Queue.push(e1);
       }
