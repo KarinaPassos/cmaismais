@@ -202,8 +202,12 @@ void Delaunay::triangulacao(){
       t.e2=e2;
       t.e3=e3;
 
-      Queue.push(e1);
-      Queue.push(e2);
+      if (std::find(std::begin(jarvis), std::end(jarvis), e1) == std::end(jarvis) ) {
+          Queue.push(e1);
+      }
+      if (std::find(std::begin(jarvis), std::end(jarvis), e2) == std::end(jarvis)) {
+          Queue.push(e2);
+      }
 
       triangles.push_back(t);
 
@@ -211,6 +215,10 @@ void Delaunay::triangulacao(){
    }
 
 
+}
+
+bool find(Edge e){
+   return true;
 }
 
 void Delaunay::paintGL(){

@@ -9,12 +9,19 @@
 #include <QOpenGLFunctions_2_0>
 #include <queue>
 
-struct Edge{
-    QPointF p1,p2;
+class Edge{
+    public:
+        QPointF p1,p2;
+        bool operator ==(Edge e) {
+             if (e.p1 == p1 && e.p2 == p2)
+                 return true;
+             return false;
+        }
 };
 
-struct Triangle{
-    Edge e1,e2,e3;
+class Triangle{
+    public:
+        Edge e1,e2,e3;
 };
 
 namespace Ui {
@@ -34,6 +41,7 @@ public:
     void triangulacao();
     void convexHull();
     double fakeAngle(QPointF currentPoint, QPointF loopPoint, QPointF testPoint);
+    bool find(Edge e);
 private:
     std::vector<QPointF> pontos;
     std::vector<QPointF> linhas;
