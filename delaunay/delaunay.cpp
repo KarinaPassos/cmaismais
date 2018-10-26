@@ -19,6 +19,8 @@ void Delaunay::mousePressEvent(QMouseEvent *e){
     if (e->button() == Qt::LeftButton && e->modifiers() == Qt::KeyboardModifier::ControlModifier) {
         linhas.clear();
         pontos.clear();
+        triangles.clear();
+        jarvis.clear();
     }
     if(e->button() == Qt::LeftButton){
         pontos.push_back(e->pos());
@@ -43,11 +45,9 @@ void Delaunay::convexHull(){
     std::sort(pontos.begin(), pontos.end(),
               [](QPointF a, QPointF b){ return a.x() <= b.x(); });
 
-    //qDebug() << "Vetor Organizado";
-    for(const auto& ponto : pontos) {
+    /*for(const auto& ponto : pontos) {
         qDebug() << ponto;
-    }
-    //qDebug() << "------";
+    }*/
 
     linhas.clear();
     p2 = pontos.front();
@@ -58,7 +58,6 @@ void Delaunay::convexHull(){
            break;
        for (int i = 0; i < pontos.size(); i++){
             if (std::find(std::begin(linhas), std::end(linhas), pontos[i]) != std::end(linhas) && linhas.size()<1) {
-                //qDebug() << "Ponto " << pontos[i] << "ja faz parte do hull.";
                 continue;
             }
 
@@ -66,7 +65,6 @@ void Delaunay::convexHull(){
             if (angle > maxAngle){
                 p3 = pontos[i];
                 maxAngle = angle;
-                //qDebug() << "testando p1, p2, p3"  << p1 << p2 << p3 << "P3 com max angle." << maxAngle;
             } else if (angle == maxAngle){
                 if (pow(p3.x(),2)+pow(p3.y(),2) < (pow(pontos[i].x(),2)+pow(pontos[i].y(),2))){
                         p3 = pontos[i];
@@ -99,128 +97,79 @@ double Delaunay::fakeAngle(QPointF point1, QPointF point2, QPointF point3){
     return angle;
 }
 
-void Delaunay::triangulacao(){
+bool Delaunay::find(Edge e,std::vector<Triangle>& triangles){
+    for (int i=0; i<triangles.size(); i++){
+        if ((e == triangles[i].e1)==1 || (e == triangles[i].e2)==1 || (e == triangles[i].e3)==1 ||
+                (e == triangles[i].e1)==-1 || (e == triangles[i].e2)==-1 || (e == triangles[i].e3)==-1)
+            return true;
+    }
+    return false;
+}
+
+void Delaunay::setJarvis(){
+    Edge aux;
+    for (int i=0; i<linhas.size()-2; i++){
+        aux.p1 = linhas[i];
+        aux.p2 = linhas[i+1];
+        jarvis.push_back(aux);
+    }
+}
+
+QPointF Delaunay::findPoint(Edge e){
     QPointF p;
-    double angle,maxAngle;
-    std::queue<Edge> Queue;
-    Edge e1,e2,e3;
-    Triangle t;
+    double angle, maxAngle;
+    angle = maxAngle = 0.0;
 
-    convexHull();
-
-    for (int i=0;i<linhas.size()-1;i++){
-        e.p1 = linhas[i];
-        e.p2 = linhas[i+1];
-        jarvis.push_back(e);
+    for (auto ponto: pontos){
+        angle = fakeAngle(e.p1,ponto,e.p2);
+        if (angle>maxAngle){
+            p = ponto;
+            maxAngle = angle;
+        }
     }
 
-    e.p1=linhas[linhas.size()-1];
-    e.p2=linhas[linhas.size()-2];
-
-    for (int i=0; i < pontos.size(); i++){
-        if (pontos[i] == e.p1 || pontos[i] == e.p2) {
-            continue;
-        }
-
-        double angle = fakeAngle(e.p1,pontos[i],e.p2);
-        if (angle > maxAngle){
-            p = pontos[i];
-            maxAngle = angle;
-        } else if (angle == maxAngle){
-            if (pow(p.x(),2)+pow(p.y(),2) > (pow(pontos[i].x(),2)+pow(pontos[i].y(),2))){
-                    p = pontos[i];
-                    maxAngle = angle;
-            }
-        }
-   }
-
-   if (((e.p1.x()-p.x())*(e.p2.y()-p.y())-(e.p2.x()-p.x())*(e.p1.y()-p.y()))>0){
-       e1.p1=e.p2;
-       e1.p2=p;
-       e2.p1=p;
-       e2.p2=e.p1;
-       e3.p1=e.p1;
-       e3.p2=e.p2;
-   } else {
-       e1.p1=e.p1;
-       e1.p2=p;
-       e2.p1=p;
-       e2.p2=e.p2;
-       e3.p1=e.p2;
-       e3.p2=e.p1;
-   }
-   t.e1=e1;
-   t.e2=e2;
-   t.e3=e3;
-
-   if (std::find(std::begin(jarvis), std::end(jarvis), e1) == std::end(jarvis)) {
-       Queue.push(e1);
-   }
-   if (std::find(std::begin(jarvis), std::end(jarvis), e2) == std::end(jarvis)) {
-       Queue.push(e2);
-   }
-
-   triangles.push_back(t);
-
-   while (Queue.size()>0){
-       e.p1=Queue.front().p1;
-       e.p2=Queue.front().p2;
-
-       for (int i = 0; i < pontos.size(); i++){
-           if (pontos[i] == e.p1 || pontos[i] == e.p2) {
-               continue;
-           }
-
-           double angle = fakeAngle(e.p1,pontos[i],e.p2);
-           if (angle > maxAngle){
-               p = pontos[i];
-               maxAngle = angle;
-           } else if (angle == maxAngle){
-               if (pow(p.x(),2)+pow(p.y(),2) > (pow(pontos[i].x(),2)+pow(pontos[i].y(),2))){
-                       p = pontos[i];
-                       maxAngle = angle;
-               }
-           }
-      }
-
-      if (((e.p1.x()-p.x())*(e.p2.y()-p.y())-(e.p2.x()-p.x())*(e.p1.y()-p.y()))>0){
-          e1.p1=e.p2;
-          e1.p2=p;
-          e2.p1=p;
-          e2.p2=e.p1;
-          e3.p1=e.p1;
-          e3.p2=e.p2;
-      } else {
-          e1.p1=e.p1;
-          e1.p2=p;
-          e2.p1=p;
-          e2.p2=e.p2;
-          e3.p1=e.p2;
-          e3.p2=e.p1;
-      }
-      t.e1=e1;
-      t.e2=e2;
-      t.e3=e3;
-
-      //aqui que tá dando caô SOCORRO
-      if (std::find(std::begin(jarvis), std::end(jarvis), e1) == std::end(jarvis) ) {
-          Queue.push(e1);
-      }
-      if (std::find(std::begin(jarvis), std::end(jarvis), e2) == std::end(jarvis)) {
-          Queue.push(e2);
-      }
-
-      triangles.push_back(t);
-
-      Queue.pop();
-   }
-
-
+    return p;
 }
 
-bool find(Edge e){
-   return true;
+bool Delaunay::orientation(QPointF point1, QPointF point2, QPointF point3){
+    if ((((point1.x()-point3.x())*(point2.y()-point3.y())-(point2.x()-point3.x())*(point1.y()-point3.y()))>0))
+        return true;
+    else
+        return false;
 }
+
+void Delaunay::setTriangle(QPointF point1, QPointF point2, QPointF point3){
+    Triangle t;
+    Edge e1,e2,e3;
+
+    if (orientation(point1,point2,point3)==true){
+           e1.p1=point2;
+           e1.p2=point3;
+           e2.p1=point3;
+           e2.p2=point1;
+           e3.p1=point1;
+           e3.p2=point2;
+       } else {
+           e1.p1=point1;
+           e1.p2=point3;
+           e2.p1=point3;
+           e2.p2=point2;
+           e3.p1=point2;
+           e3.p2=point1;
+       }
+       t.e1=e1;
+       t.e2=e2;
+       t.e3=e3;
+     triangles.push_back(t);
+}
+
+void Delaunay::triangulacao(){
+    convexHull();
+    setJarvis();
+    QPointF p = findPoint(jarvis[0]);
+    setTriangle(jarvis[0].p1,jarvis[0].p2,p); //bugado
+}
+
 
 void Delaunay::paintGL(){
     glBegin(GL_POINTS);
@@ -245,11 +194,16 @@ void Delaunay::paintGL(){
     if (triangles.size()>0){
         glBegin(GL_TRIANGLES);
 
+
+        std::cout << triangles.size() << std::endl;
         for (int i=0;i<triangles.size();i++){
-            glColor3f(0.7,(i/10.),1.0-(i/2.));
-            glVertex3i(triangles[i].e1.p1.x(),triangles[i].e1.p1.y(),0.0);
-            glVertex3i(triangles[i].e2.p1.x(),triangles[i].e2.p1.y(),0.0);
-            glVertex3i(triangles[i].e3.p1.x(),triangles[i].e3.p1.y(),0.0);
+            glColor3f(triangles[i].e1.p1.x()/500,triangles[i].e2.p1.y()/500,triangles[i].e3.p2.y()/500);
+            std::cout << "(" << triangles[i].e1.p1.x() << "," << triangles[i].e1.p1.y() << ") (" << triangles[i].e1.p2.x() << "," << triangles[i].e1.p2.y() << ") \n (" <<
+                         triangles[i].e2.p1.x() << "," << triangles[i].e2.p1.y() << ") (" << triangles[i].e2.p2.x() << "," << triangles[i].e2.p2.y() << ") \n (" <<
+                         triangles[i].e3.p1.x() << "," << triangles[i].e3.p1.y() << ") (" << triangles[i].e3.p2.x() << "," << triangles[i].e3.p2.y() << ") \n " << std::endl;
+            glVertex3f(triangles[i].e1.p1.x(),triangles[i].e1.p1.y(),0.0);
+            glVertex3f(triangles[i].e2.p1.x(),triangles[i].e2.p1.y(),0.0);
+            glVertex3f(triangles[i].e3.p1.x(),triangles[i].e3.p1.y(),0.0);
         }
 
         glEnd();

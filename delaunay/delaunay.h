@@ -12,10 +12,12 @@
 class Edge{
     public:
         QPointF p1,p2;
-        bool operator ==(Edge e) {
+        int operator ==(Edge e) {
              if (e.p1 == p1 && e.p2 == p2)
-                 return true;
-             return false;
+                 return 1;
+             else if (e.p1 == p2 && e.p2 == p1)
+                 return -1;
+             return 0;
         }
 };
 
@@ -41,14 +43,17 @@ public:
     void triangulacao();
     void convexHull();
     double fakeAngle(QPointF currentPoint, QPointF loopPoint, QPointF testPoint);
-    bool find(Edge e);
+    bool find(Edge e,std::vector<Triangle>& triangles);
+    QPointF maxAnglePoint(QPointF point1, QPointF point2, QPointF point3);
+    void setJarvis();
+    QPointF findPoint(Edge e);
+    bool orientation(QPointF point1, QPointF point2, QPointF point3);
+    void setTriangle(QPointF point1, QPointF point2, QPointF point3);
 private:
     std::vector<QPointF> pontos;
     std::vector<QPointF> linhas;
-    Edge e;
     std::vector<Triangle> triangles;
     std::vector<Edge> jarvis;
-
 };
 
 #endif // DELAUNAY_H
