@@ -65,11 +65,6 @@ void Delaunay::convexHull(){
             if (angle > maxAngle){
                 p3 = pontos[i];
                 maxAngle = angle;
-            } else if (angle == maxAngle){
-                if (pow(p3.x(),2)+pow(p3.y(),2) < (pow(pontos[i].x(),2)+pow(pontos[i].y(),2))){
-                        p3 = pontos[i];
-                        maxAngle = angle;
-                }
             }
        }
 
@@ -120,13 +115,23 @@ QPointF Delaunay::findPoint(Edge e){
     double angle, maxAngle;
     angle = maxAngle = 0.0;
 
+    //std::cout << "(" << p.x() << "," << p.y() << ")" << std::endl;
+
     for (auto ponto: pontos){
         angle = fakeAngle(e.p1,ponto,e.p2);
+
+        if (angle<0)
+            angle = -angle;
+
+        //std::cout<<angle<<std::endl;
         if (angle>maxAngle){
             p = ponto;
+            //std::cout << "(" << p.x() << "," << p.y() << ")" << std::endl;
             maxAngle = angle;
         }
     }
+
+    //std::cout << "(" << p.x() << "," << p.y() << ")" << std::endl;
 
     return p;
 }
@@ -141,6 +146,7 @@ bool Delaunay::orientation(QPointF point1, QPointF point2, QPointF point3){
 void Delaunay::setTriangle(QPointF point1, QPointF point2, QPointF point3){
     Triangle t;
     Edge e1,e2,e3;
+    Edge aux1,aux2;
 
     if (orientation(point1,point2,point3)==true){
            e1.p1=point2;
@@ -149,6 +155,23 @@ void Delaunay::setTriangle(QPointF point1, QPointF point2, QPointF point3){
            e2.p2=point1;
            e3.p1=point1;
            e3.p2=point2;
+
+           aux1.p1=point3;
+           aux1.p2=point2;
+           aux2.p1=point1;
+           aux2.p2=point3;
+
+           if (std::find(std::begin(jarvis), std::end(jarvis), e1) != std::end(jarvis)){
+               if (find(e1,triangles) == false){
+                   Queue.push(aux1);
+               }
+           }
+           if (std::find(std::begin(jarvis), std::end(jarvis), e2) != std::end(jarvis)){
+               if (find(e2,triangles) == false){
+                   Queue.push(aux2);
+               }
+           }
+
        } else {
            e1.p1=point1;
            e1.p2=point3;
@@ -156,18 +179,44 @@ void Delaunay::setTriangle(QPointF point1, QPointF point2, QPointF point3){
            e2.p2=point2;
            e3.p1=point2;
            e3.p2=point1;
+
+           aux1.p1=point3;
+           aux1.p2=point1;
+           aux2.p1=point2;
+           aux2.p2=point3;
+
+           if (std::find(std::begin(jarvis), std::end(jarvis), e1) == std::end(jarvis)){
+               if (find(e1,triangles) == false){
+                   Queue.push(aux1);
+               }
+           }
+           if (std::find(std::begin(jarvis), std::end(jarvis), e2) == std::end(jarvis)){
+               if (find(e2,triangles) == false){
+                   Queue.push(aux2);
+               }
+           }
        }
-       t.e1=e1;
-       t.e2=e2;
-       t.e3=e3;
-     triangles.push_back(t);
+    t.e1=e1;
+    t.e2=e2;
+    t.e3=e3;
+    triangles.push_back(t);
+
+    std::cout<<"size: "<< Queue.size()<<std::endl;
+
 }
 
 void Delaunay::triangulacao(){
     convexHull();
     setJarvis();
-    QPointF p = findPoint(jarvis[0]);
-    setTriangle(jarvis[0].p1,jarvis[0].p2,p); //bugado
+    Edge e;
+    QPointF p = findPoint(jarvis[1]);
+    setTriangle(jarvis[1].p1,jarvis[1].p2,p);
+    while (Queue.size()>0){
+        e = Queue.front();
+        p = findPoint(e);
+        setTriangle(e.p1,e.p2,p);
+        Queue.pop();
+    }
 }
 
 
@@ -201,6 +250,7 @@ void Delaunay::paintGL(){
             std::cout << "(" << triangles[i].e1.p1.x() << "," << triangles[i].e1.p1.y() << ") (" << triangles[i].e1.p2.x() << "," << triangles[i].e1.p2.y() << ") \n (" <<
                          triangles[i].e2.p1.x() << "," << triangles[i].e2.p1.y() << ") (" << triangles[i].e2.p2.x() << "," << triangles[i].e2.p2.y() << ") \n (" <<
                          triangles[i].e3.p1.x() << "," << triangles[i].e3.p1.y() << ") (" << triangles[i].e3.p2.x() << "," << triangles[i].e3.p2.y() << ") \n " << std::endl;
+
             glVertex3f(triangles[i].e1.p1.x(),triangles[i].e1.p1.y(),0.0);
             glVertex3f(triangles[i].e2.p1.x(),triangles[i].e2.p1.y(),0.0);
             glVertex3f(triangles[i].e3.p1.x(),triangles[i].e3.p1.y(),0.0);

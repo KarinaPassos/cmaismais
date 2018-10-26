@@ -54,6 +54,7 @@ private:
     std::vector<QPointF> linhas;
     std::vector<Triangle> triangles;
     std::vector<Edge> jarvis;
+    std::queue<Edge> Queue;
 };
 
 #endif // DELAUNAY_H
