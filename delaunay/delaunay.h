@@ -55,6 +55,7 @@ private:
     std::vector<Triangle> triangles;
     std::vector<Edge> jarvis;
     std::queue<Edge> Queue;
+    int i = 0;
 };
 
 #endif // DELAUNAY_H
