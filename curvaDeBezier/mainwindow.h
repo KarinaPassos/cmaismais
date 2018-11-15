@@ -7,6 +7,7 @@
 #include <QPoint>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_2_0>
+#include <math.h>
 
 namespace Ui {
 class MainWindow;
@@ -27,11 +28,6 @@ public:
         z = _z;
     }
 
-    Ponto (double _x, double _y, double _z){
-        x = _x;
-        y = _y;
-        z = _z;
-    }
 
 
 };
@@ -48,8 +44,13 @@ public:
     void resizeGL(int width, int height);
     void bezier();
     void start();
+    int fatorial(int n);
+    int binomial_coefficient(int n, int k);
+
+
 private:
     std::vector<Ponto> pontos;
+    std::vector<Ponto> pontosNovos;
 };
 
 #endif // MAINWINDOW_H
