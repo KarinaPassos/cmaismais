@@ -76,8 +76,8 @@ void MainWindow::start(){
         return;
 
     Ponto p;
-    p.set(320,118,94);
-    pontos.push_back(p);
+    /*p.set(320,118,94);
+    pontos.push_back(p);*/
     p.set(210,58,17);
     pontos.push_back(p);
     p.set(101,18,207);
@@ -107,23 +107,23 @@ int MainWindow::binomial_coefficient(int n, int k){
 
 
 void MainWindow::bezier(){
-    double sumX = 0;
-    double sumY = 0;
+    double sumX,sumY,sumZ;
+    sumX = sumY = sumZ = 0;
+    double c = 1000;
     Ponto aux;
-    pontosNovos.push_back(pontos[0]);
-    for (double j = 0; j<100; j++){
+
+    for (double j = 0; j<c; j++){
             for (int i = 0; i < pontos.size(); i++){
-                sumX= sumX + pow((1-j/100),pontos.size()-i)*pow(j/100,i)*pontos[i].x*binomial_coefficient(pontos.size(), i);
-                sumY= sumY + pow((1-j/100),pontos.size()-i)*pow(j/100,i)*pontos[i].y*binomial_coefficient(pontos.size(), i);
-                std::cout << "i: " << i << " j: " << j << std::endl;
+                sumX= sumX + pow((1.0-j/c),pontos.size()-(i+1))*pow(j/c,i)*pontos[i].x*binomial_coefficient(pontos.size()-1, i);
+                sumY= sumY + pow((1.0-j/c),pontos.size()-(i+1))*pow(j/c,i)*pontos[i].y*binomial_coefficient(pontos.size()-1, i);
+                sumZ= sumZ + pow((1.0-j/c),pontos.size()-(i+1))*pow(j/c,i)*pontos[i].z*binomial_coefficient(pontos.size()-1, i);
             }
 
-            aux.set(sumX,sumY,0);
+            aux.set(sumX,sumY,sumZ);
             pontosNovos.push_back(aux);
-            sumX = sumY = 0;
+            sumX = sumY = sumZ = 0;
         }
-    pontosNovos.push_back(pontos[pontos.size()-1]);
-    std::cout << pontosNovos.size() << " " << pontos.size() << std::endl;
+
 }
 
 
